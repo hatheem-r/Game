@@ -1,6 +1,8 @@
 import pygame
 import sys
 
+from assets import load_assets
+
 # --- Window Setup ---
 # 1. Initialize all imported pygame modules
 pygame.init()
@@ -18,9 +20,13 @@ BG_COLOR = (50, 100, 100)       # A dark gray for the arena background
 NARUTO_COLOR = (255, 140, 0)  # Orange
 SASUKE_COLOR = (0, 0, 139)    # Dark Blue
 
+# --- NEW: Load the background image ---
+# Tell Python to look inside the "assets" folder for a ".jpg"
+bg_image = pygame.image.load("assets/bg.bmp").convert()
+bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 
-
-
+floor_img = pygame.image.load("assets/floor.bmp").convert()
+floor_img = pygame.transform.scale(floor_img, (WIDTH, HEIGHT - 540))
 
 # --- The Projectile Hierarchy ---
 class Projectile:
@@ -64,7 +70,7 @@ class Rasenshuriken(Projectile):
     def on_hit(self, target):
         target.take_damage(10)
         # Unique effect: Knockback
-        target._x += 8 * self.direction 
+        target._x += 3 * self.direction 
 
 class Chidori(Projectile):
     def __init__(self, x, y, direction):
@@ -103,7 +109,7 @@ class Shinobi:
         self._velocity_y = 0
         self._gravity = 0.5
         self._original_height = self._height
-        self._ground_y = 450
+        self._ground_y = 480
 
         self._dodge_start_time = 0     # Renamed
         self._dodge_duration = 500     # Let's make it 500ms (half a second) for a quick dodge
@@ -396,7 +402,9 @@ while running:
 
    
 
-    screen.fill(BG_COLOR)
+    screen.blit(bg_image, (0, 0))
+    screen.blit(floor_img, (0, 515))
+
     naruto.draw(screen) # 2. Draw the characters
     sasuke.draw(screen)
 
