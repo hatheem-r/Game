@@ -22,6 +22,7 @@ SASUKE_COLOR = (0, 0, 139)    # Dark Blue
 
 
 
+# --- The Projectile Hierarchy ---
 class Projectile:
     def __init__(self, x, y, width, height, speed, color):
         self.x = x
@@ -32,24 +33,47 @@ class Projectile:
         self.color = color
 
     def update(self):
-        # Move horizontally across the screen
         self.x += self.speed
 
     def draw(self, surface):
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
+        
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, self.width, self.height)
 
-
-
-
-
+    # The base polymorphic method
+    def on_hit(self, target):
+        pass 
 
 class Kunai(Projectile):
     def __init__(self, x, y, direction):
-        # direction is 1 (right) or -1 (left)
-        speed = 1 * direction 
+        speed = 25 * direction 
         gray = (192, 192, 192)
-        # width: 20, height: 5
         super().__init__(x, y, 20, 5, speed, gray)
+        
+    def on_hit(self, target):
+        target.take_damage(3)
+
+class Rasenshuriken(Projectile):
+    def __init__(self, x, y, direction):
+        speed = 17 * direction # Slower
+        light_blue = (135, 206, 250)
+        super().__init__(x, y, 30, 30, speed, light_blue) # Massive hitbox
+        self.direction = direction
+        
+    def on_hit(self, target):
+        target.take_damage(10)
+        # Unique effect: Knockback
+        target._x += 8 * self.direction 
+
+class Chidori(Projectile):
+    def __init__(self, x, y, direction):
+        speed = 17 * direction # Very fast
+        yellow = (255, 255, 0)
+        super().__init__(x, y, 30, 30, speed, yellow)
+        
+    def on_hit(self, target):
+        target.take_damage(10)
 
 
 
@@ -72,12 +96,12 @@ class Shinobi:
         self._height = 60   # Hardcoded height for the rectangle 100
 
         self._facing_right = True
-        self._walk_speed = 0.38
+        self._walk_speed = 3.3
 
         # --- NEW: State and Physics Variables ---
         self._state = "idle"
         self._velocity_y = 0
-        self._gravity = 0.045
+        self._gravity = 0.5
         self._original_height = self._height
         self._ground_y = 450
 
@@ -121,7 +145,7 @@ class Shinobi:
             
         # 3. Launch into the air and update the state
         if self._state != "jumping":
-            self._velocity_y = -4.15
+            self._velocity_y = -10
             self._state = "jumping"
 
     def dodge(self):
@@ -166,15 +190,33 @@ class Shinobi:
 
 
 
-    def throw_kunai(self):
-        # NEW: Refuse to throw if currently dodging
+    # --- The Universal Attack Abstraction ---
+    # --- The Universal Attack Abstraction ---
+    def _shoot(self, ProjectileClass, chakra_cost=0):
         if self._state == "dodging":
             return None 
 
+        if self._chakra < chakra_cost:
+            print("Not enough chakra!")
+            return None
+
+        self._chakra -= chakra_cost
+
         direction = 1 if self._facing_right else -1
         spawn_x = self._x + (self._width // 2)
-        spawn_y = self._y + (self._height // 3)
-        return Kunai(spawn_x, spawn_y, direction)
+        spawn_y = self._y + (self._height // 4)
+
+        new_projectile = ProjectileClass(spawn_x, spawn_y, direction)
+        
+        # ---> THIS IS THE CRITICAL LINE! <---
+        new_projectile.owner = self  
+        
+        return new_projectile
+
+    # --- Public Attack Methods ---
+    def throw_kunai(self):
+        # Passes the Kunai class and costs 0 chakra
+        return self._shoot(Kunai, chakra_cost=0)
     
 
 
@@ -209,25 +251,17 @@ class Naruto(Shinobi):
         super().__init__(x, y, NARUTO_COLOR)
 
     def cast_ultimate(self):
-        # Override to throw Rasenshuriken
-        if self._chakra >= 50 and self._state != "dodging":
-            self._chakra -= 50
-            direction = 1 if self._facing_right else -1
-            spawn_x = self._x + (self._width // 2)
-            spawn_y = self._y + (self._height // 4)
-            return Rasenshuriken(spawn_x, spawn_y, direction)
-        return None
+        # Tell the abstraction to shoot a Rasenshuriken for 50 chakra
+        return self._shoot(Rasenshuriken, chakra_cost=25)
+
 
 class Sasuke(Shinobi):
     def __init__(self, x, y):
         super().__init__(x, y, SASUKE_COLOR)
 
     def cast_ultimate(self):
-        # Override to throw Chidori (no chakra check needed for NPC yet)
-        direction = 1 if self._facing_right else -1
-        spawn_x = self._x + (self._width // 2)
-        spawn_y = self._y + (self._height // 4)
-        return Chidori(spawn_x, spawn_y, direction)
+        # Tell the abstraction to shoot a Chidori for 0 chakra (NPC)
+        return self._shoot(Chidori, chakra_cost=0)
 
 
 
@@ -267,22 +301,35 @@ class Sasuke(Shinobi):
 
 
 # --- The Collision Manager ---
+# --- The Collision Manager ---
+# --- The Collision Manager ---
 def handle_collisions(player1, player2, active_projectiles):
-    # --- 1. Character vs. Character Collision ---
+    # 1. Character vs. Character
     rect1 = player1.get_rect()
     rect2 = player2.get_rect()
 
     if rect1.colliderect(rect2):
-        # If Player 1 is on the left, push them smoothly against Player 2's left side
         if player1._x < player2._x:
             player1._x = player2._x - player1._width
-        # If Player 1 is on the right, push them against Player 2's right side
         else:
             player1._x = player2._x + player2._width
-            
-    # --- 2. Projectile Collisions (Coming Next!) ---
-    # We will add the Kunai hit detection right here in the next step.
 
+    # 2. Projectile Hit Detection
+    for proj in active_projectiles[:]:
+        proj_rect = proj.get_rect()
+
+        # Safe check for Sasuke
+        if proj_rect.colliderect(rect2) and proj.owner != player2:
+            proj.on_hit(player2)            
+            active_projectiles.remove(proj) 
+            continue 
+            
+        # Safe check for Naruto
+        if proj_rect.colliderect(rect1) and proj.owner != player1:
+            proj.on_hit(player1)
+            active_projectiles.remove(proj)
+            
+        # ---> DELETE THE OTHER TWO IF STATEMENTS THAT WERE DOWN HERE! <---
 
 
 # 1. Instantiate our characters before the loop starts
@@ -312,6 +359,12 @@ while running:
                 # NEW: Only add to the list if a kunai was actually created
                 if new_kunai is not None: 
                     active_projectiles.append(new_kunai)
+
+            # NEW: Cast Ultimate
+            elif event.key == pygame.K_x:
+                ultimate = naruto.cast_ultimate()
+                if ultimate is not None:
+                    active_projectiles.append(ultimate)
     
 
     # --- 2. Keyboard Input for Actions ---
@@ -352,6 +405,7 @@ while running:
 
     # 3. Update the display so the background actually renders
     pygame.display.flip()
+    clock.tick(60)
 
 # 4. Safely quit Pygame and Python when the loop ends
 pygame.quit()
