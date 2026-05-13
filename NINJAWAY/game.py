@@ -4,6 +4,7 @@ import sys
 from assets import load_assets
 from shinobi_children import Naruto, Sasuke
 from handling_collision import handle_collisions
+from ui import draw_hud # NEW: Import your HUD manager
 
 pygame.init()
 WIDTH = 800
@@ -11,10 +12,9 @@ HEIGHT = 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("NINJAWAY")
 
-# 1. Load Assets (Now includes our empty animation hooks)
-bg_image, floor_img, naruto_anims, sasuke_anims = load_assets(WIDTH, HEIGHT)
+# 1. Load Assets (Now unpacking 5 items!)
+bg_image, floor_img, naruto_anims, sasuke_anims, ui_assets = load_assets(WIDTH, HEIGHT)
 
-# 2. Instantiate Characters (Passing the animation hooks)
 naruto = Naruto(100, 400, naruto_anims)
 sasuke = Sasuke(650, 400, sasuke_anims) 
 active_projectiles = []
@@ -62,6 +62,9 @@ while running:
 
     for projectile in active_projectiles:
         projectile.draw(screen)
+
+    # NEW: Draw the HUD over everything else
+    draw_hud(screen, naruto, sasuke, ui_assets)
 
     pygame.display.flip()
     clock.tick(60)
