@@ -1,4 +1,4 @@
-import pygame
+import pygame # pyright: ignore[reportMissingImports]
 from projectile_children import Kunai 
 
 class Shinobi:

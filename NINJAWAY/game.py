@@ -1,4 +1,4 @@
-import pygame
+import pygame # pyright: ignore[reportMissingImports]
 import sys
 
 from assets import load_assets
@@ -44,6 +44,10 @@ while running:
     if keys[pygame.K_DOWN]: naruto.dodge()
     if keys[pygame.K_LEFT]: naruto.move_left()
     if keys[pygame.K_RIGHT]: naruto.move_right()
+
+    # --- 3. Update AI & Physics ---
+    # NEW: Sasuke reads Naruto's current state before physics are applied
+    sasuke.decide_next_move(naruto, active_projectiles)
 
     # --- 3. Update Physics ---
     naruto.update()

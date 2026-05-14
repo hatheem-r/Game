@@ -1,4 +1,4 @@
-import pygame
+import pygame # pyright: ignore[reportMissingImports]
 
 def load_assets(width, height):
     bg = pygame.image.load("assets/bg.bmp").convert()

@@ -1,4 +1,4 @@
-import pygame
+import pygame # pyright: ignore[reportMissingImports]
 
 class Projectile:
     def __init__(self, x, y, width, height, speed, color):
