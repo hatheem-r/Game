@@ -45,9 +45,12 @@ while running:
     if keys[pygame.K_LEFT]: naruto.move_left()
     if keys[pygame.K_RIGHT]: naruto.move_right()
 
-    # --- 3. Update AI & Physics ---
-    # NEW: Sasuke reads Naruto's current state before physics are applied
-    sasuke.decide_next_move(naruto, active_projectiles)
+    # NEW: Catch the action Sasuke decides to take
+    sasuke_action = sasuke.decide_next_move(naruto, active_projectiles)
+    
+    # If he decided to throw something, add it to the game!
+    if sasuke_action is not None:
+        active_projectiles.append(sasuke_action)
 
     # --- 3. Update Physics ---
     naruto.update()
