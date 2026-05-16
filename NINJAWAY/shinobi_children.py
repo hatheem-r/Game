@@ -6,15 +6,15 @@ NARUTO_COLOR = (255, 140, 0)
 SASUKE_COLOR = (0, 0, 139)
 
 class Naruto(Shinobi):
-    def __init__(self, x, y, animations=None):
-        super().__init__(x, y, NARUTO_COLOR, animations)
+    def __init__(self,name, x, y, animations=None):
+        super().__init__(name, x, y, NARUTO_COLOR, animations)
 
     def cast_ultimate(self):
         return self._shoot(Rasenshuriken, chakra_cost=25)
 
 class Sasuke(Shinobi):
-    def __init__(self, x, y, animations=None):
-        super().__init__(x, y, SASUKE_COLOR, animations)
+    def __init__(self, name, x, y, animations=None):
+        super().__init__("Sasuke", x, y, SASUKE_COLOR, animations)
         
         # --- NEW: AI Timers ---
         self._last_attack_time = pygame.time.get_ticks()

@@ -3,7 +3,8 @@ from projectile_children import Kunai
 
 class Shinobi:
     # Notice we take both color AND a placeholder for animations
-    def __init__(self, x, y, color, animations=None):
+    def __init__(self, name, x, y, color, animations=None):
+        self.name = name
         self._x = x          
         self._y = y          
         self._width = 30    
@@ -38,7 +39,7 @@ class Shinobi:
     def take_damage(self, amount):
         self._health -= amount
         if self._health < 0: self._health = 0
-        print(f" {self._color} Health dropped to {self._health}!")
+        print(f" {self.name} Health dropped to {self._health}!")
 
     def cast_ultimate(self):
         pass 
