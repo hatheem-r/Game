@@ -15,7 +15,7 @@ pygame.display.set_caption("NINJAWAY")
 # 1. Load Assets (Now unpacking 5 items!)
 bg_image, floor_img, naruto_anims, sasuke_anims, ui_assets = load_assets(WIDTH, HEIGHT)
 
-player = input("Enter your name, Shinobi: ")
+player = "Player1"
 
 naruto = Naruto(player,100, 400, naruto_anims)
 sasuke = Sasuke("Sasuke",650, 400, sasuke_anims) 
