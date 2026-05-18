@@ -15,9 +15,50 @@ pygame.display.set_caption("NINJAWAY")
 # 1. Load Assets (Now unpacking 5 items!)
 bg_image, floor_img, naruto_anims, sasuke_anims, ui_assets = load_assets(WIDTH, HEIGHT)
 
-player = "Player1"
+# player name--------------------------------------------------------------
+font = pygame.font.SysFont(None, 50)
 
-naruto = Naruto(player,100, 400, naruto_anims)
+player_name = ""
+typing = True
+
+while typing:
+
+    # screen.fill((0,0,0))
+    screen.blit(bg_image, (0, 0))
+    screen.blit(floor_img, (0, 515))
+
+    pygame.draw.rect(screen, (0, 0, 255), (80, 247, 640, 40))
+
+    text1 = font.render("Hello, Ninja of Konaha!!" , False, (255,170,0))
+    text = font.render("Enter Name: " + player_name, True, (255,170,0))
+
+    screen.blit(text1, (100,200))
+    screen.blit(text, (100,250))
+
+    pygame.display.flip()
+
+    for event in pygame.event.get():
+
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        if event.type == pygame.KEYDOWN:
+
+            if event.key == pygame.K_RETURN:
+                typing = False
+
+            elif event.key == pygame.K_BACKSPACE:
+                player_name = player_name[:-1]
+
+            else:
+                player_name += event.unicode
+
+# player name--------------------------------------------------------------
+
+# player_name = "Hatheem"
+
+naruto = Naruto(player_name,100, 400, naruto_anims)
 sasuke = Sasuke("Sasuke",650, 400, sasuke_anims) 
 active_projectiles = []
 
@@ -65,7 +106,6 @@ while running:
     # --- 4. Render Phase ---
     screen.blit(bg_image, (0, 0))
     screen.blit(floor_img, (0, 515))
-
     naruto.draw(screen) 
     sasuke.draw(screen)
 

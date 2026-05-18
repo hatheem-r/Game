@@ -39,7 +39,7 @@ class Shinobi:
     def take_damage(self, amount):
         self._health -= amount
         if self._health < 0: self._health = 0
-        print(f" {self.name} Health dropped to {self._health}!")
+        print(f" {self.name}'s Health dropped to {self._health}!")
 
     def cast_ultimate(self):
         pass 
