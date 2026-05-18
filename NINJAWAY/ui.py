@@ -2,7 +2,7 @@ import pygame # pyright: ignore[reportMissingImports]
 
 def draw_hud(surface, player1, player2, ui_assets=None):
 
-    font = pygame.font.SysFont(None, 30)
+    font = pygame.font.SysFont(None, 32)
     name1_text = font.render(player1.name, True, (50,255,50))
     surface.blit(name1_text, (50, 75))
     name2_text = font.render(player2.name, True, (50,255,50))

@@ -56,7 +56,7 @@ while typing:
 
 # player name--------------------------------------------------------------
 
-# player_name = "Hatheem"
+# player_name = 
 
 naruto = Naruto(player_name,100, 400, naruto_anims)
 sasuke = Sasuke("Sasuke",650, 400, sasuke_anims) 
