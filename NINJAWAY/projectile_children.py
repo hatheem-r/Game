@@ -8,7 +8,7 @@ class Kunai(Projectile):
     def __init__(self, x, y, direction):
         speed = 6.25 * direction 
         gray = (192, 192, 192)
-        super().__init__(x, y, 20, 5, speed, gray)
+        super().__init__(x, y, 12, 5, speed, gray)
         
     def on_hit(self, target):
         target.take_damage(3)
